@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public string Suite { get; set; } = suite;
         public string Value { get; set; } = value;
+        public bool IsFaceUp { get; set; } = true;
     }
 }
