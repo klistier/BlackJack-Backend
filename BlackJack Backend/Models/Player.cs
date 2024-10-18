@@ -6,34 +6,56 @@
         public string Name { get; set; } = name;
         public int Currency { get; set; } = currency;
         public List<Card> HandOfCards { get; set; } = handOfCards;
+        public bool CanDrawCard { get; set; } = true;
+
+        private readonly Deck _deck;
+        private readonly GameLogic _gameLogic;
 
 
-
-        //räkna ut värdet på spelarhanden
-        public int Value CalculateUserHandValue(List<Card> handOfCards)
+        //spelardrag - Splitta
+        public (List<Card> firstHand, List<Card> secondHand) SplitHand()
         {
-            int totalSum = 0;
-            foreach (Card card in handOfCards)
+            string firstCardValue = HandOfCards[0].Value;
+            string secondCardValue = HandOfCards[1].Value;
+
+            List<Card> firstHand = new();
+            List<Card> secondHand = new();
+
+            if (firstCardValue == secondCardValue ||
+               firstCardValue == "Knekt" && secondCardValue == "Knekt" ||
+               firstCardValue == "Dam" && secondCardValue == "Dam" ||
+               firstCardValue == "Kung" && secondCardValue == "Kung" ||
+               firstCardValue == "Ess" && secondCardValue == "Ess")
             {
-                if (int.TryParse(card.Value, out int cardValue))
-                {
-                    totalSum += cardValue;
+                firstHand.Add(HandOfCards[0]);
+                secondHand.Add(HandOfCards[1]);
 
-                }
-                else if (card.Value == "Knekt" || card.Value == "Dam" || card.Value == "Kung")
+                if (firstCardValue == "Ess")
                 {
-                    totalSum += 10;
+                    firstHand.Add(_deck.DrawCard());
+                    secondHand.Add(_deck.DrawCard());
+                    CanDrawCard = false;
                 }
-                else if (card.Value == "Ess")
-                {
-                    totalSum += 11;
-                }
-                //HANTERA OM ESS ÄR 1 HÄR
-
             }
+            return (firstHand, secondHand);
         }
 
-        //spelardrag
+        //Hit
+        public List<Card> Hit()
+        {
+            var card = _deck.DrawCard();
+            HandOfCards.Add(card);
+            _gameLogic.CheckGameOver();
+            return HandOfCards;
+        }
+
+        //Stand
+        public void Stand()
+        {
+
+        }
+
+
 
     }
 

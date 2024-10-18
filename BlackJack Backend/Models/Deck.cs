@@ -8,6 +8,8 @@ namespace BlackJack_Backend.Models
         List<string> values = new List<string> { "2", "3", "4", "5", "6", "7", "8", "9", "10", "Knekt", "Dam", "Kung", "Ess" };
         readonly List<Card> deck = new List<Card>();
 
+        private readonly Player _player;
+
         //skapa och blanda leken
         public List<Card> CreateDeck()
         {
@@ -38,6 +40,10 @@ namespace BlackJack_Backend.Models
         //dra ett kort
         public Card DrawCard(bool isFaceUp = true)
         {
+            if (!_player.CanDrawCard)
+            {
+                throw new InvalidOperationException();
+            }
             var card = deck[0];
             deck.RemoveAt(0);
             return card;
