@@ -4,6 +4,7 @@
     {
         public bool IsGameOver { get; set; } = false;
         public string Winner { get; set; }
+        public bool IsATie { get; set; } = false;
 
         private readonly Deck _deck;
         private readonly Player _player;
@@ -55,7 +56,23 @@
             int dealerValue = CalculateHandValue(_dealer.HandOfCards);
             int playerValue = CalculateHandValue(_player.HandOfCards);
 
-            if (playerValue > 21 || dealerValue == 21 && playerValue == 21)
+
+            if (dealerValue == playerValue)
+            {
+                IsGameOver = true;
+                IsATie = true;
+            }
+            else if (playerValue == 21 && dealerValue != 21)
+            {
+                IsGameOver = true;
+                Winner = "Player";
+            }
+            else if (dealerValue == 21 && playerValue != 21)
+            {
+                IsGameOver = true;
+                Winner = "Dealer";
+            }
+            else if (playerValue > 21)
             {
                 IsGameOver = true;
                 Winner = "Dealer";

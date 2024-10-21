@@ -1,9 +1,9 @@
 ﻿namespace BlackJack_Backend.Models
 {
-    public class Dealer(List<Card> handOfCards)
+    public class Dealer()
     {
         public string Name { get; set; } = "Coupier";
-        public List<Card> HandOfCards { get; set; } = handOfCards;
+        public List<Card> HandOfCards { get; set; } = [];
 
         private readonly GameLogic _gameLogic;
         private readonly Deck _deck;
@@ -18,4 +18,6 @@
             }
         }
     }
+
+
 }
