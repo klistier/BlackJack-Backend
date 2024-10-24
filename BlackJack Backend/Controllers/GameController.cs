@@ -1,5 +1,9 @@
 ﻿using BlackJack_Backend.Models;
+using BlackJack_Backend.Models.Dto;
+using BlackJack_Backend.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Numerics;
 
 namespace BlackJack_Backend.Controllers
 {
@@ -8,54 +12,39 @@ namespace BlackJack_Backend.Controllers
 
     public class GameController : ControllerBase
     {
-        private readonly Deck _deck;
-        private readonly Dealer _dealer;
-        private readonly Player _player;
-        private readonly GameLogic _gameLogic;
+
+
+        private readonly GameService _gameService;
+
+        public GameController(GameService gameService)
+        {
+            _gameService = gameService;
+        }
 
         [HttpPost("start-game")]
-        public ActionResult StartGame([FromBody] BetRequestDto betDto)
+        public ActionResult<Game> StartGame([FromBody] BetRequestDto betDto)
         {
+
             try
             {
-                _player.HandOfCards.Clear();
-                _dealer.HandOfCards.Clear();
-                _deck.CreateDeck();
-                _player.PlaceBet(betDto.betValue);
-                _gameLogic.DealInitialHand();
-                var currentHands = new
-                {
-                    PlayerHand = _player.HandOfCards,
-                    DealerHand = _dealer.HandOfCards
-                };
-                return Ok(currentHands);
+                _gameService.StartNewGame(betDto);
+
+                return Ok(_gameService.GetCurrentGame());
             }
             catch (Exception ex)
             {
+
                 return BadRequest(ex.Message);
             }
         }
 
         [HttpPost("end-game")]
-        public ActionResult EndGame([FromBody] BetRequestDto betDto)
+        public ActionResult<Game> EndGame([FromBody] BetRequestDto betDto)
         {
             try
             {
-                _gameLogic.CheckGameOver();
-                if (_gameLogic.IsGameOver)
-                {
-                    _player.EvaluateBet(betDto.betValue);
-                    return Ok(new
-                    {
-                        _gameLogic.Winner,
-                        _player.Currency,
-                        _gameLogic.IsATie
-                    });
-                }
-                else
-                {
-                    return BadRequest("Spelet är inte slut");
-                }
+                _gameService.EndGame(betDto);
+                return Ok(_gameService.GetCurrentGame());
             }
 
             catch (Exception ex)
@@ -64,10 +53,33 @@ namespace BlackJack_Backend.Controllers
             }
         }
 
+        [HttpPost("hit")]
+        public ActionResult<Game> PlayerHit()
+        {
+            try
+            {
+                _gameService.Hit();
+                return Ok(_gameService.GetCurrentGame());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpPost("stand")]
+        public ActionResult<Game> PlayerStand()
+        {
 
-
+            try
+            {
+                _gameService.Stand();
+                return Ok(_gameService.GetCurrentGame());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
-
 }
-

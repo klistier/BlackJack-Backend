@@ -2,13 +2,16 @@
 {
     public class Game
     {
+        public Deck Deck { get; set; }
+        public Player Player { get; set; }
+        public Dealer Dealer { get; set; }
 
-        private readonly GameLogic _gameLogic;
-
-        public void StartGame()
+        //Skapa nya instanser av klasserna
+        public Game()
         {
-            _gameLogic.DealInitialHand();
+            Deck = new Deck();
+            Player = new Player();
+            Dealer = new Dealer();
         }
-
     }
 }
