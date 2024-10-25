@@ -5,9 +5,7 @@ namespace BlackJack_Backend.Service
 {
     public class GameService
     {
-        public bool IsGameOver { get; set; } = false;
-        public string Winner { get; set; } = string.Empty;
-        public bool IsATie { get; set; } = false;
+
 
         private readonly Game _game;
 
@@ -76,17 +74,17 @@ namespace BlackJack_Backend.Service
             _game.Dealer.HandOfCards = [faceDownCard, DrawCard()];
         }
 
-
         //räkna ut värdet på en hand
         public int CalculateHandValue(List<Card> handOfCards)
         {
             int totalSum = 0;
+            int aceCount = 0;
+
             foreach (Card card in handOfCards)
             {
                 if (int.TryParse(card.Value, out int cardValue))
                 {
                     totalSum += cardValue;
-
                 }
                 else if (card.Value == "Knekt" || card.Value == "Dam" || card.Value == "Kung")
                 {
@@ -95,13 +93,16 @@ namespace BlackJack_Backend.Service
                 else if (card.Value == "Ess")
                 {
                     totalSum += 11;
-
-                    if (totalSum > 21)
-                    {
-                        totalSum -= 10;
-                    }
+                    aceCount++;
                 }
             }
+
+            while (totalSum > 21 && aceCount > 0)
+            {
+                totalSum -= 10;
+                aceCount--;
+            }
+
             return totalSum;
         }
 
@@ -110,16 +111,16 @@ namespace BlackJack_Backend.Service
         //Räkna ut om bettet vanns eller ej
         public void EvaluateBet(int betSum)
         {
-            if (Winner == "Player")
+            if (_game.Winner == "Player")
             {
                 betSum *= 2;
                 _game.Player.Currency += betSum;
             }
-            else if (Winner == "Dealer")
+            else if (_game.Winner == "Dealer")
             {
                 _game.Player.Currency -= betSum;
             }
-            else if (IsATie)
+            else if (_game.IsATie)
             {
                 _game.Player.Currency += betSum;
             }
@@ -129,37 +130,27 @@ namespace BlackJack_Backend.Service
         public void CheckGameOver()
         {
             int dealerValue = CalculateHandValue(_game.Dealer.HandOfCards);
-            int playerValue = CalculateHandValue(_game.Dealer.HandOfCards);
+            int playerValue = CalculateHandValue(_game.Player.HandOfCards);
 
 
-            if (dealerValue == playerValue)
+            if (dealerValue == 21 && playerValue == 21)
             {
-                IsGameOver = true;
-                IsATie = true;
+                _game.IsGameOver = true;
+                _game.IsATie = true;
             }
-            else if (playerValue == 21 && dealerValue != 21)
+            else if (playerValue == 21 && dealerValue != 21 || playerValue <= 21 && dealerValue > 21)
             {
-                IsGameOver = true;
-                Winner = "Player";
+                _game.IsGameOver = true;
+                _game.Winner = "Player";
             }
-            else if (dealerValue == 21 && playerValue != 21)
+            else if (dealerValue == 21 && playerValue != 21 || dealerValue <= 21 && playerValue > 21)
             {
-                IsGameOver = true;
-                Winner = "Dealer";
-            }
-            else if (playerValue > 21)
-            {
-                IsGameOver = true;
-                Winner = "Dealer";
-            }
-            else if (dealerValue > 21)
-            {
-                IsGameOver = true;
-                Winner = "Player";
+                _game.IsGameOver = true;
+                _game.Winner = "Dealer";
             }
             else
             {
-                IsGameOver = false;
+                _game.IsGameOver = false;
             }
         }
 
@@ -169,6 +160,9 @@ namespace BlackJack_Backend.Service
             _game.Deck.CreateDeck();
             _game.Player.HandOfCards.Clear();
             _game.Dealer.HandOfCards.Clear();
+            _game.Player.CanDrawCard = true;
+            _game.IsGameOver = false;
+            _game.IsATie = false;
             _game.Player.PlaceBet(betDto.BetValue);
             DealInitialHand();
         }
@@ -177,7 +171,7 @@ namespace BlackJack_Backend.Service
         public void EndGame(BetRequestDto betDto)
         {
             CheckGameOver();
-            if (IsGameOver)
+            if (_game.IsGameOver)
             {
                 EvaluateBet(betDto.BetValue);
             }
