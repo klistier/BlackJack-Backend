@@ -43,20 +43,20 @@ namespace BlackJack_Backend.Service
         //Stand
         public void Stand()
         {
-            int playerHandValue = _game.Player.HandValue;
             int dealerHandValue = _game.Dealer.HandValue;
 
             foreach (var card in _game.Dealer.HandOfCards)
             {
                 card.IsFaceUp = true;
             }
-            while (dealerHandValue < 17 && playerHandValue > dealerHandValue)
+            while (dealerHandValue < 17)
             {
                 Card card = DrawCard();
                 _game.Dealer.HandOfCards.Add(card);
                 dealerHandValue = CalculateHandValue(_game.Dealer.HandOfCards);
                 _game.Dealer.HandValue = dealerHandValue;
             }
+            _game.Player.HasUsedStand = true;
             CheckGameOver();
         }
 
@@ -136,12 +136,16 @@ namespace BlackJack_Backend.Service
                 _game.IsATie = true;
                 _game.Winner = "Tie";
             }
-            else if (playerValue == 21 && dealerValue != 21 || playerValue <= 21 && dealerValue > 21)
+            else if (playerValue == 21 && dealerValue != 21 ||
+                    playerValue <= 21 && dealerValue > 21 ||
+                    _game.Player.HasUsedStand && playerValue > dealerValue) //ex: player stand 16 - d: 20
             {
                 _game.IsGameOver = true;
                 _game.Winner = "Player";
             }
-            else if (dealerValue == 21 && playerValue != 21 || dealerValue <= 21 && playerValue > 21)
+            else if (dealerValue == 21 && playerValue != 21 ||
+                dealerValue <= 21 && playerValue > 21 ||
+                _game.Player.HasUsedStand && dealerValue > playerValue)
             {
                 _game.IsGameOver = true;
                 _game.Winner = "Dealer";

@@ -6,6 +6,7 @@
         public List<Card> HandOfCards { get; set; } = [];
         public int HandValue { get; set; } = 0;
         public bool CanDrawCard { get; set; } = true;
+        public bool HasUsedStand { get; set; } = false;
 
         //Satsa
         public string PlaceBet(int betSum)
