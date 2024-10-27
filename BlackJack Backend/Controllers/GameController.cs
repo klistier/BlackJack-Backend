@@ -70,7 +70,6 @@ namespace BlackJack_Backend.Controllers
         [HttpPost("stand")]
         public ActionResult<Game> PlayerStand()
         {
-
             try
             {
                 _gameService.Stand();

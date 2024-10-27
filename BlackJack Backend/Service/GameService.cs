@@ -22,17 +22,6 @@ namespace BlackJack_Backend.Service
             return card;
         }
 
-        //Metod för att kolla om dealern ska dra fler kort
-        public void DealerDrawCard()
-        {
-            int dealerCardsValue = CalculateHandValue(_game.Dealer.HandOfCards);
-            if (dealerCardsValue < 17)
-            {
-                Card card = DrawCard();
-                _game.Dealer.HandOfCards.Add(card);
-            }
-        }
-
         //Hit
         public void Hit()
         {
@@ -43,6 +32,7 @@ namespace BlackJack_Backend.Service
             var card = DrawCard();
             _game.Player.HandOfCards.Add(card);
             int currentHandValue = CalculateHandValue(_game.Player.HandOfCards);
+            _game.Player.HandValue = currentHandValue;
             if (currentHandValue > 21)
             {
                 _game.Player.CanDrawCard = false;
@@ -50,17 +40,22 @@ namespace BlackJack_Backend.Service
             CheckGameOver();
         }
 
-
         //Stand
         public void Stand()
         {
+            int playerHandValue = _game.Player.HandValue;
+            int dealerHandValue = _game.Dealer.HandValue;
+
             foreach (var card in _game.Dealer.HandOfCards)
             {
                 card.IsFaceUp = true;
             }
-            while (CalculateHandValue(_game.Dealer.HandOfCards) < 17)
+            while (dealerHandValue < 17 && playerHandValue > dealerHandValue)
             {
-                DealerDrawCard();
+                Card card = DrawCard();
+                _game.Dealer.HandOfCards.Add(card);
+                dealerHandValue = CalculateHandValue(_game.Dealer.HandOfCards);
+                _game.Dealer.HandValue = dealerHandValue;
             }
             CheckGameOver();
         }
@@ -72,6 +67,8 @@ namespace BlackJack_Backend.Service
             var faceDownCard = DrawCard();
             faceDownCard.IsFaceUp = false;
             _game.Dealer.HandOfCards = [faceDownCard, DrawCard()];
+            _game.Player.HandValue = CalculateHandValue(_game.Player.HandOfCards);
+            _game.Dealer.HandValue = CalculateHandValue(_game.Dealer.HandOfCards);
         }
 
         //räkna ut värdet på en hand
@@ -137,6 +134,7 @@ namespace BlackJack_Backend.Service
             {
                 _game.IsGameOver = true;
                 _game.IsATie = true;
+                _game.Winner = "Tie";
             }
             else if (playerValue == 21 && dealerValue != 21 || playerValue <= 21 && dealerValue > 21)
             {
@@ -163,6 +161,7 @@ namespace BlackJack_Backend.Service
             _game.Player.CanDrawCard = true;
             _game.IsGameOver = false;
             _game.IsATie = false;
+            _game.Winner = string.Empty;
             _game.Player.PlaceBet(betDto.BetValue);
             DealInitialHand();
         }

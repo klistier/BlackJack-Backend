@@ -4,6 +4,7 @@
     {
         public int Currency { get; set; } = 1000;
         public List<Card> HandOfCards { get; set; } = [];
+        public int HandValue { get; set; } = 0;
         public bool CanDrawCard { get; set; } = true;
 
         //Satsa
@@ -20,7 +21,4 @@
             }
         }
     }
-
-
-
 }
