@@ -130,7 +130,7 @@ namespace BlackJack_Backend.Service
             int playerValue = CalculateHandValue(_game.Player.HandOfCards);
 
 
-            if (dealerValue == 21 && playerValue == 21)
+            if (dealerValue == 21 && playerValue == 21 || _game.Player.HasUsedStand && dealerValue == playerValue)
             {
                 _game.IsGameOver = true;
                 _game.IsATie = true;
@@ -138,14 +138,14 @@ namespace BlackJack_Backend.Service
             }
             else if (playerValue == 21 && dealerValue != 21 ||
                     playerValue <= 21 && dealerValue > 21 ||
-                    _game.Player.HasUsedStand && playerValue > dealerValue) //ex: player stand 16 - d: 20
+                    _game.Player.HasUsedStand && playerValue > dealerValue && dealerValue >= 17)
             {
                 _game.IsGameOver = true;
                 _game.Winner = "Player";
             }
-            else if (dealerValue == 21 && playerValue != 21 ||
-                dealerValue <= 21 && playerValue > 21 ||
-                _game.Player.HasUsedStand && dealerValue > playerValue)
+            else if (dealerValue == 21 && playerValue > 21 ||
+                    dealerValue <= 21 && playerValue > 21 ||
+                    _game.Player.HasUsedStand && dealerValue > playerValue && dealerValue >= 17)
             {
                 _game.IsGameOver = true;
                 _game.Winner = "Dealer";
@@ -163,6 +163,7 @@ namespace BlackJack_Backend.Service
             _game.Player.HandOfCards.Clear();
             _game.Dealer.HandOfCards.Clear();
             _game.Player.CanDrawCard = true;
+            _game.Player.HasUsedStand = false;
             _game.IsGameOver = false;
             _game.IsATie = false;
             _game.Winner = string.Empty;
