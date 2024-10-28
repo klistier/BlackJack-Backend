@@ -27,7 +27,7 @@ namespace BlackJack_Backend.Service
         {
             if (!_game.Player.CanDrawCard)
             {
-                throw new Exception("Du kan inte dra fler kort!");
+                throw new Exception("You cannot draw more cards!");
             }
             var card = DrawCard();
             _game.Player.HandOfCards.Add(card);
@@ -38,6 +38,13 @@ namespace BlackJack_Backend.Service
                 _game.Player.CanDrawCard = false;
             }
             CheckGameOver();
+            if (_game.IsGameOver)
+            {
+                foreach (var dealerCard in _game.Dealer.HandOfCards)
+                {
+                    dealerCard.IsFaceUp = true;
+                }
+            }
         }
 
         //Stand
@@ -79,18 +86,31 @@ namespace BlackJack_Backend.Service
 
             foreach (Card card in handOfCards)
             {
+
                 if (int.TryParse(card.Value, out int cardValue))
                 {
                     totalSum += cardValue;
+                    if (!card.IsFaceUp)
+                    {
+                        totalSum -= cardValue;
+                    }
                 }
                 else if (card.Value == "Knekt" || card.Value == "Dam" || card.Value == "Kung")
                 {
                     totalSum += 10;
+                    if (!card.IsFaceUp)
+                    {
+                        totalSum -= 10;
+                    }
                 }
                 else if (card.Value == "Ess")
                 {
                     totalSum += 11;
                     aceCount++;
+                    if (!card.IsFaceUp)
+                    {
+                        totalSum -= 11;
+                    }
                 }
             }
 

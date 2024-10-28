@@ -24,7 +24,6 @@ namespace BlackJack_Backend.Controllers
         [HttpPost("start-game")]
         public ActionResult<Game> StartGame([FromBody] BetRequestDto betDto)
         {
-
             try
             {
                 _gameService.StartNewGame(betDto);
