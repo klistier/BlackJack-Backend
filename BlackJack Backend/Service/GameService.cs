@@ -135,7 +135,7 @@ namespace BlackJack_Backend.Service
             }
             else if (_game.Winner == "Dealer")
             {
-                _game.Player.Currency -= betSum;
+                _game.Player.Currency = _game.Player.Currency; //PlaceBet har redan dragit bort betSum
             }
             else if (_game.IsATie)
             {

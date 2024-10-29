@@ -12,8 +12,6 @@ namespace BlackJack_Backend.Controllers
 
     public class GameController : ControllerBase
     {
-
-
         private readonly GameService _gameService;
 
         public GameController(GameService gameService)
